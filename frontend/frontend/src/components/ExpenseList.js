@@ -7,6 +7,10 @@ const ExpenseList = () => {
   const [error, setError] = useState('');
 
   useEffect(() => {
+    axios.get('/expense')
+    .then (response => setExpenses(response.data))
+    .catch(err => console.error('Error fetching expenses. Please try again.', error));
+    []
     const fetchExpenses = async () => {
       setLoading(true);
       setError('');
