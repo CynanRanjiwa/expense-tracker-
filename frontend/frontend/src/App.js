@@ -1,12 +1,16 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+import './App.css';  // Custom styles for dark theme
 
 function App() {
     const [transactions, setTransactions] = useState([]);
     const [amount, setAmount] = useState('');
     const [category, setCategory] = useState('');
     const [description, setDescription] = useState('');
+    const [income, setIncome] = useState(false);
+    const [date, setDate] = useState('');
 
+    // Fetch transactions when the component mounts
     useEffect(() => {
         fetchTransactions();
     }, []);
@@ -22,11 +26,22 @@ function App() {
 
     const addTransaction = async () => {
         try {
-            await axios.post('http://localhost:8000/transactions/', {
+            // Ensure amount is parsed as float
+            const newTransaction = {
                 amount: parseFloat(amount),
                 category,
                 description,
-            });
+                income,
+                date,
+            };
+
+            // Make sure all fields are filled
+            if (!amount || !category || !date) {
+                alert("Please fill in all required fields.");
+                return;
+            }
+
+            await axios.post('http://localhost:8000/transactions/', newTransaction);
             fetchTransactions();
             clearForm();
         } catch (error) {
@@ -34,57 +49,94 @@ function App() {
         }
     };
 
+    const deleteTransaction = async (transactionId) => {
+        try {
+            await axios.delete(`http://localhost:8000/transactions/${transactionId}`);
+            fetchTransactions();
+        } catch (error) {
+            console.error("There was an error deleting the transaction:", error);
+        }
+    };
+
     const clearForm = () => {
         setAmount('');
         setCategory('');
         setDescription('');
+        setIncome(false);
+        setDate('');
     };
 
     return (
-        <div className="min-h-screen bg-gray-900 text-white flex flex-col items-center justify-center">
-            <h1 className="text-4xl mb-8 text-center">Expense Tracker</h1>
-            <div className="w-full max-w-md p-6 bg-gray-800 rounded-lg text-center">
+        <div className="app-container">
+            <h1 className="app-title">Finance App</h1>
+            <div className="form-container">
                 <input
-                    className="w-full p-3 mb-4 bg-gray-700 text-white rounded-lg text-center"
+                    className="form-input"
                     type="number"
                     placeholder="Amount"
                     value={amount}
                     onChange={(e) => setAmount(e.target.value)}
                 />
                 <input
-                    className="w-full p-3 mb-4 bg-gray-700 text-white rounded-lg text-center"
+                    className="form-input"
                     type="text"
                     placeholder="Category"
                     value={category}
                     onChange={(e) => setCategory(e.target.value)}
                 />
                 <input
-                    className="w-full p-3 mb-4 bg-gray-700 text-white rounded-lg text-center"
+                    className="form-input"
                     type="text"
                     placeholder="Description"
                     value={description}
                     onChange={(e) => setDescription(e.target.value)}
                 />
-                <button
-                    className="w-full p-3 bg-green-600 rounded-lg"
-                    onClick={addTransaction}
-                >
-                    Add Transaction
-                </button>
+                <label className="form-label">
+                    <input
+                        className="form-checkbox"
+                        type="checkbox"
+                        checked={income}
+                        onChange={(e) => setIncome(e.target.checked)}
+                    />
+                    Income?
+                </label>
+                <input
+                    className="form-input"
+                    type="date"
+                    placeholder="Date"
+                    value={date}
+                    onChange={(e) => setDate(e.target.value)}
+                />
+                <button className="form-button" onClick={addTransaction}>Submit</button>
             </div>
-            <div className="w-full max-w-md mt-8">
-                <h2 className="text-2xl mb-4 text-center">Transaction History</h2>
-                {transactions.map((transaction) => (
-                    <div
-                        key={transaction.id}
-                        className="p-4 mb-4 bg-gray-800 rounded-lg text-center"
-                    >
-                        <p>Amount: ${transaction.amount}</p>
-                        <p>Category: {transaction.category}</p>
-                        <p>Description: {transaction.description}</p>
-                        <p>Date: {new Date(transaction.date).toLocaleDateString()}</p>
-                    </div>
-                ))}
+            <div className="transactions-container">
+                <h2 className="transactions-title">Transactions</h2>
+                <table className="transactions-table">
+                    <thead>
+                        <tr>
+                            <th>AMOUNT</th>
+                            <th>CATEGORY</th>
+                            <th>DESCRIPTION</th>
+                            <th>INCOME</th>
+                            <th>DATE</th>
+                            <th>ACTION</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {transactions.map((transaction) => (
+                            <tr key={transaction.id}>
+                                <td>{transaction.amount}</td>
+                                <td>{transaction.category}</td>
+                                <td>{transaction.description}</td>
+                                <td>{transaction.income ? "Yes" : "No"}</td>
+                                <td>{new Date(transaction.date).toLocaleDateString()}</td>
+                                <td>
+                                    <button className="delete-button" onClick={() => deleteTransaction(transaction.id)}>Delete</button>
+                                </td>
+                            </tr>
+                        ))}
+                    </tbody>
+                </table>
             </div>
         </div>
     );
