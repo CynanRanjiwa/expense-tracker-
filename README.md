@@ -35,6 +35,6 @@ To use the Finance Tracker Web App:
         Run the React app (npm start) to start the frontend.
 
     Interacting with the App:
-        Access the frontend interface (typically at http://localhost:3003).
+        Access the frontend interface (typically at http://localhost:3000).
         Add new transactions, view transaction history, and observe real-time updates on the frontend.
 
