@@ -49,18 +49,6 @@ function App() {
         }
     };
 
-    const handleUpdateExpense = async (id, updatedExpense) => {
-        try {
-            const response = await axios.put(`${API_URL}/expenses/${id}`, updatedExpense);
-            const updatedExpenses = expenses.map(expense => 
-                expense.id === id ? response.data : expense
-            );
-            setExpenses(updatedExpenses);
-        } catch (error) {
-            console.error('Error updating expense:', error);
-        }
-    };
-
     const expenseItems = expenses.map(expense => (
         <div key={expense.id} className="expense-item">
             <p>
@@ -70,7 +58,6 @@ function App() {
             </p>
             <div>
                 <button onClick={() => handleDeleteExpense(expense.id)}>Delete</button>
-                <button onClick={() => handleUpdateExpense(expense.id, { ...expense, amount: 50 })}>Update Amount</button>
             </div>
         </div>
     ));
