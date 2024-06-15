@@ -25,15 +25,13 @@ function App() {
     };
 
     const handleAddExpense = async () => {
-        console.log('Adding expense:', { description, amount, date }); // Add console.log here
         try {
             const response = await axios.post(`${API_URL}/expenses/`, {
                 description: description,
                 amount: parseFloat(amount),
                 date: date // Assuming date is already in ISO string format from the input field
             });
-            console.log('Expense added successfully:', response.data); // Add console.log here
-            fetchExpenses();
+            setExpenses([...expenses, response.data]); // Add new expense to local state
             setDescription('');
             setAmount('');
             setDate('');
@@ -45,17 +43,34 @@ function App() {
     const handleDeleteExpense = async (id) => {
         try {
             await axios.delete(`${API_URL}/expenses/${id}`);
-            fetchExpenses();
+            setExpenses(expenses.filter(expense => expense.id !== id)); // Remove deleted expense from local state
         } catch (error) {
             console.error('Error deleting expense:', error);
         }
     };
 
+    const handleUpdateExpense = async (id, updatedExpense) => {
+        try {
+            const response = await axios.put(`${API_URL}/expenses/${id}`, updatedExpense);
+            const updatedExpenses = expenses.map(expense => 
+                expense.id === id ? response.data : expense
+            );
+            setExpenses(updatedExpenses);
+        } catch (error) {
+            console.error('Error updating expense:', error);
+        }
+    };
+
     const expenseItems = expenses.map(expense => (
         <div key={expense.id} className="expense-item">
-            <p>{expense.description} - ${expense.amount.toFixed(2)} ({new Date(expense.date).toLocaleDateString()})</p>
+            <p>
+                <span>{expense.description}</span> - 
+                <span>${expense.amount.toFixed(2)}</span> (
+                <span>{new Date(expense.date).toLocaleDateString()}</span>)
+            </p>
             <div>
                 <button onClick={() => handleDeleteExpense(expense.id)}>Delete</button>
+                <button onClick={() => handleUpdateExpense(expense.id, { ...expense, amount: 50 })}>Update Amount</button>
             </div>
         </div>
     ));

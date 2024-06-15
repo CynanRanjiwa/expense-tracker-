@@ -1,5 +1,5 @@
 # backend/main.py
-from fastapi import FastAPI, HTTPException, Depends, status
+from fastapi import FastAPI, HTTPException, Depends, status, Query
 from sqlalchemy.orm import Session
 from sqlalchemy import create_engine, desc
 from sqlalchemy.orm import sessionmaker
@@ -70,6 +70,11 @@ def delete_expense(expense_id: int, db: Session = Depends(get_db)):
     db.delete(expense)
     db.commit()
     return
+
+# Pagination endpoint
+@app.get("/expenses/paginate/", response_model=List[Expense])
+def paginate_expenses(skip: int = Query(0, ge=0), limit: int = Query(10, le=100), db: Session = Depends(get_db)):
+    return db.query(Expense).order_by(desc(Expense.date)).offset(skip).limit(limit).all()
 
 # Create the database tables
 Base.metadata.create_all(bind=engine)
