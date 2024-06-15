@@ -1,17 +1,40 @@
 # expense-tracker-
+# About
+The expense tracker web app is a simple application designed to help users track theeir financial transactions.
+it consists of two main components: a fontend built with react.js and a backend powered by fastAPI.
+This application allow users to perform CRUD (create, read, update ,delete)
 
- Sure, let's set up the backend for your Finance Tracker using FastAPI and SQLAlchemy. I'll guide you through the ste
-ps to create a fully functional backend that can handle CRUD operations for transactions. This setup will include database configuration, API endpoints, and all necessary components to ensure the applic
-Create a directory structure for your FastAPI project. Here’s a recommended layout:
+# Technologies used 
+FRONTEND : 
+react.js ...for building user interfaces 
+Axios :  used for making http request from the frontend to the backend 
 
-``` Step-by-Step Guide to Setting Up the Backend with FastAPI
-finance-tracker-backend/
-│### 1. Project Structure
-├── app/
-│   ├── __init__.pystructure for your FastAPI project. Here’s a recommended layout:
-│   ├── main.py
-│   ├── models.py
-│   ├── schemas.pyckend/
-│   ├── crud.py
-│   ├── database.py
-This backend is now ready to interact with your frontend application, providing a robust foundation for tracking financial transactions.
+BACKEND : 
+FASTAPI : for building APIs 
+SQLAlchemy : sql toolkit and object-relational mapping 
+
+DATABASE:
+SQLite 
+
+STYLING: 
+Tailwindcss 
+
+# usage 
+To use the Finance Tracker Web App:
+
+    Setup Backend:
+        Ensure Python 3.7+ is installed.
+        Install FastAPI and SQLAlchemy using pip.
+        Run the FastAPI server (uvicorn main:app --reload) to start the backend.
+
+    Setup Frontend:
+        Install Node.js and npm.
+        Create a new React app (npx create-react-app finance-tracker).
+        Install Axios (npm install axios).
+        Configure Tailwind CSS according to your React app setup.
+        Run the React app (npm start) to start the frontend.
+
+    Interacting with the App:
+        Access the frontend interface (typically at http://localhost:3002).
+        Add new transactions, view transaction history, and observe real-time updates on the frontend.
+
