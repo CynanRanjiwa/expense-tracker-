@@ -1,4 +1,3 @@
-# main.py
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
@@ -9,8 +8,8 @@ import datetime
 
 app = FastAPI()
 
-# CORS settings to allow frontend communication
 origins = ["*"]
+
 app.add_middleware(
     CORSMiddleware,
     allow_origins=origins,
@@ -19,13 +18,12 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Database setup
 DATABASE_URL = "sqlite:///./transactions.db"
+
 engine = create_engine(DATABASE_URL)
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 Base = declarative_base()
 
-# Transaction model
 class Transaction(Base):
     __tablename__ = "transactions"
     id = Column(Integer, primary_key=True, index=True)
@@ -37,7 +35,6 @@ class Transaction(Base):
 
 Base.metadata.create_all(bind=engine)
 
-# Pydantic model for request body
 class TransactionCreate(BaseModel):
     amount: float
     category: str
@@ -45,7 +42,6 @@ class TransactionCreate(BaseModel):
     income: bool
     date: datetime.date
 
-# API to create a transaction
 @app.post("/transactions/")
 def create_transaction(transaction: TransactionCreate):
     db = SessionLocal()
@@ -56,15 +52,13 @@ def create_transaction(transaction: TransactionCreate):
     db.close()
     return db_transaction
 
-# API to read transactions
 @app.get("/transactions/")
-def read_transactions(skip: int = 0, limit: int = 10):
+def read_transactions():
     db = SessionLocal()
-    transactions = db.query(Transaction).offset(skip).limit(limit).all()
+    transactions = db.query(Transaction).all()
     db.close()
     return transactions
 
-# Run the FastAPI app
 if __name__ == "__main__":
     import uvicorn
     uvicorn.run(app, host="0.0.0.0", port=8000)
