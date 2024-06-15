@@ -1,84 +1,45 @@
-/* Dark theme styles */
-.app-container {
-  min-height: 100vh;
-  background-color: #1a1a1a;
-  color: #ffffff;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
+/* frontend/src/App.css */
+.App {
+  font-family: Arial, sans-serif;
+  background-color: #202124;
+  color: #e0e0e0;
   padding: 20px;
 }
 
-.app-title {
-  font-size: 2.5rem;
+.add-expense, .expenses-list {
+  background-color: #383838;
+  padding: 10px;
   margin-bottom: 20px;
-  text-align: center;
+  border-radius: 8px;
 }
 
-.form-container {
-  width: 100%;
-  max-width: 400px;
-  margin-bottom: 30px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
+input, button {
+  margin: 5px;
+  padding: 8px;
+  border: 1px solid #ccc;
+  background-color: #505050;
+  color: #e0e0e0;
+  border-radius: 4px;
 }
 
-.form-input, .form-button, .form-checkbox {
-  width: 100%;
-  padding: 10px;
-  margin: 5px 0;
-  background-color: #333333;
-  border: none;
-  border-radius: 5px;
-  color: #ffffff;
-  text-align: center;
-}
-
-.form-label {
-  margin: 5px 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.form-button {
+button {
   background-color: #4caf50;
+  color: white;
   cursor: pointer;
-}
-
-.transactions-container {
-  width: 100%;
-  max-width: 800px;
-}
-
-.transactions-title {
-  font-size: 1.5rem;
-  margin-bottom: 10px;
-  text-align: center;
-}
-
-.transactions-table {
-  width: 100%;
-  border-collapse: collapse;
-  text-align: center;
-}
-
-.transactions-table th, .transactions-table td {
-  padding: 10px;
-  border: 1px solid #333333;
-}
-
-.transactions-table th {
-  background-color: #333333;
-}
-
-.delete-button {
-  padding: 5px 10px;
-  background-color: #f44336;
-  color: #ffffff;
   border: none;
-  border-radius: 3px;
-  cursor: pointer;
+}
+
+button:hover {
+  background-color: #45a049;
+}
+
+.expense-item {
+  margin-bottom: 10px;
+  padding: 10px;
+  background-color: #505050;
+  border-radius: 4px;
+}
+
+.expense-item p {
+  margin: 5px 0;
 }

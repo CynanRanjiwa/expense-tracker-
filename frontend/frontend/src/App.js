@@ -1,142 +1,78 @@
+// frontend/src/App.js
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import './App.css';  // Custom styles for dark theme
+import './App.css';
+
+const API_URL = 'http://localhost:8000';  // Replace with your FastAPI server URL
 
 function App() {
-    const [transactions, setTransactions] = useState([]);
-    const [amount, setAmount] = useState('');
-    const [category, setCategory] = useState('');
+    const [expenses, setExpenses] = useState([]);
     const [description, setDescription] = useState('');
-    const [income, setIncome] = useState(false);
+    const [amount, setAmount] = useState('');
     const [date, setDate] = useState('');
 
-    // Fetch transactions when the component mounts
     useEffect(() => {
-        fetchTransactions();
+        fetchExpenses();
     }, []);
 
-    const fetchTransactions = async () => {
+    const fetchExpenses = async () => {
         try {
-            const response = await axios.get('http://localhost:8000/transactions/');
-            setTransactions(response.data);
+            const response = await axios.get(`${API_URL}/expenses/`);
+            setExpenses(response.data);
         } catch (error) {
-            console.error("There was an error fetching transactions:", error);
+            console.error('Error fetching expenses:', error);
         }
     };
 
-    const addTransaction = async () => {
+    const handleAddExpense = async () => {
+        console.log('Adding expense:', { description, amount, date }); // Add console.log here
         try {
-            // Ensure amount is parsed as float
-            const newTransaction = {
+            const response = await axios.post(`${API_URL}/expenses/`, {
+                description: description,
                 amount: parseFloat(amount),
-                category,
-                description,
-                income,
-                date,
-            };
-
-            // Make sure all fields are filled
-            if (!amount || !category || !date) {
-                alert("Please fill in all required fields.");
-                return;
-            }
-
-            await axios.post('http://localhost:8000/transactions/', newTransaction);
-            fetchTransactions();
-            clearForm();
+                date: date // Assuming date is already in ISO string format from the input field
+            });
+            console.log('Expense added successfully:', response.data); // Add console.log here
+            fetchExpenses();
+            setDescription('');
+            setAmount('');
+            setDate('');
         } catch (error) {
-            console.error("There was an error adding a transaction:", error);
+            console.error('Error adding expense:', error);
         }
     };
 
-    const deleteTransaction = async (transactionId) => {
+    const handleDeleteExpense = async (id) => {
         try {
-            await axios.delete(`http://localhost:8000/transactions/${transactionId}`);
-            fetchTransactions();
+            await axios.delete(`${API_URL}/expenses/${id}`);
+            fetchExpenses();
         } catch (error) {
-            console.error("There was an error deleting the transaction:", error);
+            console.error('Error deleting expense:', error);
         }
     };
 
-    const clearForm = () => {
-        setAmount('');
-        setCategory('');
-        setDescription('');
-        setIncome(false);
-        setDate('');
-    };
+    const expenseItems = expenses.map(expense => (
+        <div key={expense.id} className="expense-item">
+            <p>{expense.description} - ${expense.amount.toFixed(2)} ({new Date(expense.date).toLocaleDateString()})</p>
+            <div>
+                <button onClick={() => handleDeleteExpense(expense.id)}>Delete</button>
+            </div>
+        </div>
+    ));
 
     return (
-        <div className="app-container">
-            <h1 className="app-title">Finance App</h1>
-            <div className="form-container">
-                <input
-                    className="form-input"
-                    type="number"
-                    placeholder="Amount"
-                    value={amount}
-                    onChange={(e) => setAmount(e.target.value)}
-                />
-                <input
-                    className="form-input"
-                    type="text"
-                    placeholder="Category"
-                    value={category}
-                    onChange={(e) => setCategory(e.target.value)}
-                />
-                <input
-                    className="form-input"
-                    type="text"
-                    placeholder="Description"
-                    value={description}
-                    onChange={(e) => setDescription(e.target.value)}
-                />
-                <label className="form-label">
-                    <input
-                        className="form-checkbox"
-                        type="checkbox"
-                        checked={income}
-                        onChange={(e) => setIncome(e.target.checked)}
-                    />
-                    Income?
-                </label>
-                <input
-                    className="form-input"
-                    type="date"
-                    placeholder="Date"
-                    value={date}
-                    onChange={(e) => setDate(e.target.value)}
-                />
-                <button className="form-button" onClick={addTransaction}>Submit</button>
+        <div className="App">
+            <h1>Expense Tracker</h1>
+            <div className="add-expense">
+                <h2>Add Expense</h2>
+                <input type="text" placeholder="Description" value={description} onChange={(e) => setDescription(e.target.value)} />
+                <input type="number" placeholder="Amount" value={amount} onChange={(e) => setAmount(e.target.value)} />
+                <input type="date" value={date} onChange={(e) => setDate(e.target.value)} />
+                <button onClick={handleAddExpense}>Add Expense</button>
             </div>
-            <div className="transactions-container">
-                <h2 className="transactions-title">Transactions</h2>
-                <table className="transactions-table">
-                    <thead>
-                        <tr>
-                            <th>AMOUNT</th>
-                            <th>CATEGORY</th>
-                            <th>DESCRIPTION</th>
-                            <th>INCOME</th>
-                            <th>DATE</th>
-                            <th>ACTION</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {transactions.map((transaction) => (
-                            <tr key={transaction.id}>
-                                <td>{transaction.amount}</td>
-                                <td>{transaction.category}</td>
-                                <td>{transaction.description}</td>
-                                <td>{transaction.income ? "Yes" : "No"}</td>
-                                <td>{new Date(transaction.date).toLocaleDateString()}</td>
-                                <td>
-                                    <button className="delete-button" onClick={() => deleteTransaction(transaction.id)}>Delete</button>
-                                </td>
-                            </tr>
-                        ))}
-                    </tbody>
-                </table>
+            <div className="expenses-list">
+                <h2>Expenses</h2>
+                {expenseItems}
             </div>
         </div>
     );
