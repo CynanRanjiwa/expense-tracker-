@@ -1,82 +1,107 @@
-import "./App.css"; // Importing the CSS for styling
-import { useState, useEffect } from "react";
-import api from "./api/api"; // Importing the API service
-import ConfirmationDialog from "./components/ConfirmationDialog";
-import TransactionForm from "./components/TransactionForm";
-import TransactionTable from "./components/TransactionTable";
+// src/App.js
+import React, { useState, useEffect } from 'react';
+import axios from 'axios';
+import './App.css';
 
 function App() {
-  // State to hold the list of transactions
   const [transactions, setTransactions] = useState([]);
-  // State to manage the visibility of the confirmation dialog
-  const [confirmationVisible, setConfirmationVisible] = useState(false);
-  // State to hold the ID of the transaction to be deleted
-  const [transactionToDelete, setTransactionToDelete] = useState(null);
+  const [amount, setAmount] = useState('');
+  const [category, setCategory] = useState('');
+  const [description, setDescription] = useState('');
+  const [income, setIncome] = useState(false);
+  const [date, setDate] = useState('');
 
-  // Function to fetch transactions from the API
-  const fetchTransactions = async () => {
-    try {
-      const response = await api.get("/gettransaction/");
-      setTransactions(response.data); // Update the state with the fetched data
-    } catch (error) {
-      console.error("Error fetching transactions:", error);
-    }
-  };
-
-  // useEffect to fetch transactions when the component mounts
   useEffect(() => {
     fetchTransactions();
   }, []);
 
-  // Function to handle when a transaction delete is initiated
-  const handleDeleteTransaction = (transactionId) => {
-    setConfirmationVisible(true);
-    setTransactionToDelete(transactionId);
+  const fetchTransactions = async () => {
+    const response = await axios.get('http://localhost:8000/transactions/');
+    setTransactions(response.data);
   };
 
-  // Function to confirm deletion of a transaction
-  const confirmDelete = async () => {
-    if (transactionToDelete !== null) {
-      try {
-        await api.delete(`/deletetransaction/${transactionToDelete}`);
-        fetchTransactions(); // Refresh the transactions list after deletion
-      } catch (error) {
-        console.error(`Error deleting transaction ${transactionToDelete}:`, error);
-      } finally {
-        setConfirmationVisible(false);
-        setTransactionToDelete(null);
-      }
-    }
+  const addTransaction = async () => {
+    await axios.post('http://localhost:8000/transactions/', {
+      amount: parseFloat(amount),
+      category,
+      description,
+      income,
+      date,
+    });
+    fetchTransactions();
+    clearForm();
   };
 
-  // Function to cancel the delete operation
-  const cancelDelete = () => {
-    setConfirmationVisible(false);
-    setTransactionToDelete(null);
+  const clearForm = () => {
+    setAmount('');
+    setCategory('');
+    setDescription('');
+    setIncome(false);
+    setDate('');
   };
 
   return (
-    <>
-      <div className="w-full">
-        {/* Navigation Bar */}
-        <nav className="flex flex-row justify-between items-center px-6 py-5 border-b border-slate-400">
-          <div id="logo">Finance App</div>
-        </nav>
-        {/* Transaction Form Component */}
-        <TransactionForm fetchTransactions={fetchTransactions} />
-        {/* Transaction Table Component */}
-        <TransactionTable
-          transactions={transactions}
-          handleDeleteTransaction={handleDeleteTransaction}
+    <div className="min-h-screen bg-gray-900 text-white flex flex-col items-center justify-center">
+      <h1 className="text-4xl mb-8 text-center">Finance Tracker</h1>
+      <div className="w-full max-w-md p-6 bg-gray-800 rounded-lg text-center">
+        <input
+          className="w-full p-3 mb-4 bg-gray-700 text-white rounded-lg text-center"
+          type="number"
+          placeholder="Amount"
+          value={amount}
+          onChange={(e) => setAmount(e.target.value)}
         />
+        <input
+          className="w-full p-3 mb-4 bg-gray-700 text-white rounded-lg text-center"
+          type="text"
+          placeholder="Category"
+          value={category}
+          onChange={(e) => setCategory(e.target.value)}
+        />
+        <input
+          className="w-full p-3 mb-4 bg-gray-700 text-white rounded-lg text-center"
+          type="text"
+          placeholder="Description"
+          value={description}
+          onChange={(e) => setDescription(e.target.value)}
+        />
+        <div className="flex items-center justify-center mb-4">
+          <label className="mr-2">Income:</label>
+          <input
+            type="checkbox"
+            checked={income}
+            onChange={(e) => setIncome(e.target.checked)}
+          />
+        </div>
+        <input
+          className="w-full p-3 mb-4 bg-gray-700 text-white rounded-lg text-center"
+          type="date"
+          value={date}
+          onChange={(e) => setDate(e.target.value)}
+        />
+        <button
+          className="w-full p-3 bg-green-600 rounded-lg"
+          onClick={addTransaction}
+        >
+          Add Transaction
+        </button>
       </div>
-      {/* Confirmation Dialog Component */}
-      <ConfirmationDialog
-        visible={confirmationVisible}
-        onConfirm={confirmDelete}
-        onCancel={cancelDelete}
-      />
-    </>
+      <div className="w-full max-w-md mt-8">
+        <h2 className="text-2xl mb-4 text-center">Transaction History</h2>
+        {transactions.map((transaction) => (
+          <div
+            key={transaction.id}
+            className="p-4 mb-4 bg-gray-800 rounded-lg text-center"
+          >
+            <p>Amount: ${transaction.amount}</p>
+            <p>Category: {transaction.category}</p>
+            <p>Description: {transaction.description}</p>
+            <p>Type: {transaction.income ? 'Income' : 'Expense'}</p>
+            <p>Date: {transaction.date}</p>
+          </div>
+        ))}
+      </div>
+    </div>
   );
 }
 
